@@ -656,7 +656,7 @@ class StandardScaler(BaseEstimator, TransformerMixin):
 
         return self
 
-    def transform(self, X, y='deprecated', copy=None):
+    def transform(self, X, y='deprecated', copy=None, force_all_finite=True):
         """Perform standardization by centering and scaling
 
         Parameters
@@ -668,6 +668,8 @@ class StandardScaler(BaseEstimator, TransformerMixin):
                This parameter will be removed in 0.21.
         copy : bool, optional (default: None)
             Copy the input X or not.
+        force_all_finite : boolean (default=True)
+            Whether to raise an error on np.inf and np.nan in X.
         """
         if not isinstance(y, string_types) or y != 'deprecated':
             warnings.warn("The parameter y on transform() is "
@@ -678,7 +680,8 @@ class StandardScaler(BaseEstimator, TransformerMixin):
 
         copy = copy if copy is not None else self.copy
         X = check_array(X, accept_sparse='csr', copy=copy, warn_on_dtype=True,
-                        estimator=self, dtype=FLOAT_DTYPES)
+                        estimator=self, dtype=FLOAT_DTYPES,
+                        force_all_finite=force_all_finite)
 
         if sparse.issparse(X):
             if self.with_mean:

@@ -191,6 +191,20 @@ def test_standard_scaler_1d():
     assert_equal(scaler.n_samples_seen_, X.shape[0])
 
 
+def test_standard_scaler_force_all_finite():
+    scaler = StandardScaler()
+    X = np.random.RandomState(42).randn(20, 1)
+    scaler.fit(X)
+
+    for non_finite, check in [(np.nan, np.isnan), (np.inf, np.isinf)]:
+        X_non_finite = np.vstack([X, [[non_finite]]])
+        assert_raises(ValueError, lambda x: scaler.transform(x), X_non_finite)
+        X_non_finite_scaled = scaler.transform(X_non_finite, force_all_finite=False)
+        assert_true(check(X_non_finite_scaled[-1][0]))
+        assert_almost_equal(np.mean(X_non_finite_scaled[:-1]), 0)
+        assert_almost_equal(np.std(X_non_finite_scaled[:-1]), 1)
+
+
 def test_scale_1d():
     # 1-d inputs
     X_list = [1., 3., 5., 0.]
